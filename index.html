@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Title Tag Generator</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background: rgb(255,237,189);
+            background: radial-gradient(circle, rgb(227, 177, 39) 0%, rgb(41, 123, 222) 100%);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            width: 100%;
+            background-color: #007bff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .navbar .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            padding-left: 15px;
+        }
+        .navbar .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .navbar .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .navbar .profile button {
+            background-color: #ff4d4d;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .navbar .profile button:hover {
+            background-color: #cc0000;
+        }
+
+        /* Main Container */
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            margin: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+        input[type="text"], input[type="password"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .tags-container {
+            margin-top: 20px;
+            text-align: left;
+            max-height: 300px; /* Fixed height */
+            overflow-y: auto; /* Scrollable if content overflows */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            display: none; /* Hidden by default */
+        }
+        .tag {
+            background-color: #e9ecef;
+            padding: 8px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: all; /* Allows selecting text easily */
+        }
+        .tag.selected {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .hidden-tag {
+            display: none; /* Hide tags by default */
+        }
+        .subscribe-message {
+            margin-top: 10px;
+            color: #ff0000;
+            font-size: 14px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+        .footer img {
+            width: 20px;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        .login-form {
+            display: block; /* Show login form by default */
+        }
+        .tag-generator {
+            display: none; /* Hide tag generator by default */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 22px;
+            }
+            input[type="text"], input[type="password"] {
+                font-size: 14px;
+            }
+            button {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            .tags-container {
+                max-height: 250px; /* Smaller height for tablets */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            input[type="text"], input[type="password"] {
+                font-size: 12px;
+            }
+            button {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            .tags-container {
+                max-height: 200px; /* Smaller height for mobile */
+            }
+            .footer {
+                font-size: 12px;
+            }
+        }
+        /* CSS */
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            object-fit: cover; /* Ensures the image fits well */
+        }
+
+        .profile button {
+            background-color: #ff4d4d;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .profile button:hover {
+            background-color: #cc0000;
+        }
+        .logout{
+            padding-right: 35px;
+            border-radius: 25%;
+            text-shadow: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <img src="logo.png" alt="Logo" class="logo">
+        <div class="profile" id="profileSection" style="display: none;">
+            <label for="profileImageUpload">
+                <img src="https://via.placeholder.com/40" alt="Profile Image" id="profileImage" class="profile-image">
+            </label>
+            <input type="file" id="profileImageUpload" accept="image/*" style="display: none;" onchange="handleProfileImageUpload(event)">
+            <button class="logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- Login Form -->
+    <div class="container login-form" id="loginForm">
+        <h1>Login to Access Tag Generator</h1>
+        <input type="text" id="emailOrMobile" placeholder="Enter email or mobile...">
+        <input type="password" id="password" placeholder="Enter password...">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <!-- Tag Generator -->
+    <div class="container tag-generator" id="tagGenerator">
+        <h1>YouTube Title Tag Generator</h1>
+        <input type="text" id="keyword" placeholder="Enter a keyword...">
+        <div>
+            <button onclick="generateTags()">Generate Tags</button>
+            <button id="regenerateButton" style="display: none;" onclick="regenerateTags()">Regenerate Tags</button>
+            <button id="copyTagsButton" style="display: none;" onclick="copyTags()">Copy Tags</button>
+            <button id="resetButton" style="display: none;" onclick="resetTags()">Reset</button>
+        </div>
+        <div class="tags-container" id="tags"></div>
+        <div class="subscribe-message" id="subscribeMessage" style="display: none;">
+            Subscribe to my <a href="https://www.youtube.com/channel/UCf5V8SBxk_Y-rFB_ynA6ygA" target="_blank">YouTube Channel</a> to unlock all tags!
+            <button onclick="checkSubscription()">I Subscribed!</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <img src="cc.png" alt="Copyright Icon">
+        Copyrights to Seshagiri Yarlagadda.
+    </div>
+
+    <script>
+        const popularTemplates = [
+            "10 {keyword} Hacks You Need to Know",
+            "The Ultimate Guide to {keyword}",
+            "Top 5 {keyword} Tips for Beginners",
+            "How to {keyword} Like a Pro",
+            "{keyword} Explained in 5 Minutes",
+            "Best {keyword} Tools You Should Use",
+            "{keyword} Secrets Revealed",
+            "Why {keyword} is Changing the Game",
+            "The Truth About {keyword}",
+            "{keyword} Mistakes You're Making",
+            "How I Mastered {keyword} in 30 Days",
+            "{keyword} Trends You Can't Ignore",
+            "The Best {keyword} Strategies for 2023",
+            "{keyword} for Beginners: Start Here",
+            "How to Get Better at {keyword}",
+            "{keyword} Tips and Tricks You'll Love",
+            "The Science Behind {keyword}",
+            "{keyword} Hacks That Actually Work",
+            "How to Avoid Common {keyword} Mistakes",
+            "{keyword} Made Easy: Step-by-Step Guide",
+            "The Future of {keyword} in 2024",
+            "{keyword} Tools That Will Save You Time",
+            "How to Make Money with {keyword}",
+            "{keyword} Explained for Dummies",
+            "The Best {keyword} Resources Online",
+            "How to Improve Your {keyword} Skills",
+            "{keyword} Myths Busted",
+            "Why {keyword} is So Popular",
+            "How to Start with {keyword} Today",
+            "{keyword} Tips from the Pros"
+        ];
+
+        // Check if the user is logged in
+        const isLoggedIn = localStorage.getItem('loggedIn') === 'true';
+
+        // Show tag generator and profile section if logged in
+        if (isLoggedIn) {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('tagGenerator').style.display = 'block';
+            document.getElementById('profileSection').style.display = 'flex';
+        }
+
+        // Simulate login
+        function login() {
+            const emailOrMobile = document.getElementById('emailOrMobile').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!emailOrMobile || !password) {
+                alert("Please enter email/mobile and password!");
+                return;
+            }
+
+            // Simulate sending first-time login details to your email
+            sendLoginDetailsToEmail(emailOrMobile);
+
+            // Save login status
+            localStorage.setItem('loggedIn', 'true');
+            alert("Login successful! You can now access the tag generator.");
+
+            // Show tag generator and profile section, hide login form
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('tagGenerator').style.display = 'block';
+            document.getElementById('profileSection').style.display = 'flex';
+        }
+
+        // Simulate sending login details to your email
+        function sendLoginDetailsToEmail(emailOrMobile) {
+            const isFirstTime = localStorage.getItem('firstTimeLogin') !== 'true';
+            if (isFirstTime) {
+                console.log(`Sending login details to your email: ${emailOrMobile}`);
+                localStorage.setItem('firstTimeLogin', 'true');
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('loggedIn');
+            alert("You have been logged out.");
+            window.location.reload(); // Refresh the page
+        }
+
+        // Rest of the code for tag generation, subscription, etc.
+        // (Same as in the previous implementation)
+   
+        // Rest of the code for tag generation, subscription, etc.
+        // (Same as in the previous implementation)
+        const hasSubscribed = localStorage.getItem('subscribed') === 'true';
+
+        function generateTags() {
+            const keyword = document.getElementById('keyword').value.trim();
+            const tagsContainer = document.getElementById('tags');
+            const subscribeMessage = document.getElementById('subscribeMessage');
+            const regenerateButton = document.getElementById('regenerateButton');
+            const copyTagsButton = document.getElementById('copyTagsButton');
+            const resetButton = document.getElementById('resetButton');
+            tagsContainer.innerHTML = '';
+
+            if (!keyword) {
+                alert("Please enter a keyword!");
+                return;
+            }
+
+            // Shuffle the templates and pick the top 20
+            const shuffledTemplates = popularTemplates.sort(() => 0.5 - Math.random()).slice(0, 20);
+
+            shuffledTemplates.forEach((template, index) => {
+                const tag = template.replace(/{keyword}/g, keyword);
+                const tagElement = document.createElement('div');
+                tagElement.className = 'tag';
+                tagElement.textContent = tag;
+                tagElement.onclick = () => tagElement.classList.toggle('selected');
+
+                // Hide tags beyond the first 5 for non-subscribed users
+                if (!hasSubscribed && index >= 5) {
+                    tagElement.classList.add('hidden-tag');
+                }
+
+                tagsContainer.appendChild(tagElement);
+            });
+
+            // Show the tags container
+            tagsContainer.style.display = 'block';
+
+            // Show subscribe message and hide buttons for non-subscribed users
+            if (!hasSubscribed) {
+                subscribeMessage.style.display = 'block';
+                regenerateButton.style.display = 'none';
+                copyTagsButton.style.display = 'none';
+                resetButton.style.display = 'none';
+            } else {
+                subscribeMessage.style.display = 'none';
+                regenerateButton.style.display = 'inline-block';
+                copyTagsButton.style.display = 'inline-block';
+                resetButton.style.display = 'inline-block';
+            }
+        }
+
+        function regenerateTags() {
+            generateTags(); // Reuse the same logic to regenerate tags
+        }
+
+        function copyTags() {
+            const tagsContainer = document.getElementById('tags');
+            const selectedTags = tagsContainer.querySelectorAll('.tag.selected');
+            const allTags = tagsContainer.querySelectorAll('.tag');
+
+            let tagsToCopy = [];
+
+            if (selectedTags.length > 0) {
+                // Copy only selected tags
+                selectedTags.forEach(tag => tagsToCopy.push(tag.textContent));
+            } else {
+                // Copy all tags if none are selected
+                allTags.forEach(tag => tagsToCopy.push(tag.textContent));
+            }
+
+            if (tagsToCopy.length === 0) {
+                alert("No tags to copy!");
+                return;
+            }
+
+            // Copy tags to clipboard
+            navigator.clipboard.writeText(tagsToCopy.join('\n'))
+                .then(() => alert("Tags copied to clipboard!"))
+                .catch(() => alert("Failed to copy tags."));
+        }
+
+        function resetTags() {
+            document.getElementById('keyword').value = ''; // Clear input field
+            document.getElementById('tags').innerHTML = ''; // Clear tags container
+            document.getElementById('tags').style.display = 'none'; // Hide tags container
+            document.getElementById('subscribeMessage').style.display = 'none'; // Hide subscribe message
+        }
+
+        // Simulate subscription check (replace with actual YouTube API integration)
+        function checkSubscription() {
+            const isSubscribed = confirm("Have you subscribed to the channel?");
+            if (isSubscribed) {
+                localStorage.setItem('subscribed', 'true');
+                alert("Thank you for subscribing! All tags are now unlocked.");
+                generateTags(); // Regenerate tags to show all
+            } else {
+                alert("Please subscribe to unlock all tags.");
+            }
+        }
+        // JavaScript
+        // Function to handle profile image upload
+        function handleProfileImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    // Set the uploaded image as the profile picture
+                    const profileImage = document.getElementById('profileImage');
+                    profileImage.src = e.target.result;
+
+                    // Save the image URL to localStorage
+                    localStorage.setItem('profileImage', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Load the profile image from localStorage on page load
+        window.onload = function () {
+            const savedProfileImage = localStorage.getItem('profileImage');
+            if (savedProfileImage) {
+                const profileImage = document.getElementById('profileImage');
+                profileImage.src = savedProfileImage;
+            }
+        };
+    </script>
+</body>
+</html>
